@@ -44,9 +44,9 @@ class _PriceScreenState extends State<PriceScreen> {
         value: selectedCurrency,
         items: dropDownItoms,
         onChanged: (value) async {
-          getCryptoData();
           setState(() {
             selectedCurrency = value!;
+            getCryptoData();
           });
         });
   }
@@ -61,7 +61,10 @@ class _PriceScreenState extends State<PriceScreen> {
         backgroundColor: Colors.lightBlue,
         itemExtent: 32.0,
         onSelectedItemChanged: (selectedIndex) {
-          print(selectedIndex);
+          setState(() {
+            selectedCurrency = currenciesList[selectedIndex];
+            getCryptoData();
+          });
         },
         children: pickerItems);
   }
@@ -111,7 +114,9 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: const EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: Platform.isIOS ? getIOSPicker() : getAndroidDropdownButton(),
+            child: Platform.isAndroid
+                ? getIOSPicker()
+                : getAndroidDropdownButton(),
           )
         ],
       ),
