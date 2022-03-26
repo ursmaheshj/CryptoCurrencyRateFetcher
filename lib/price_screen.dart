@@ -69,14 +69,13 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: const EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: DropdownButton<String>(
-                value: selectedCurrency,
-                items: getDropdownItoms(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCurrency = value!;
-                  });
-                }),
+            child: CupertinoPicker(
+                backgroundColor: Colors.lightBlue,
+                itemExtent: 32.0,
+                onSelectedItemChanged: (selectedIndex) {
+                  print(selectedIndex);
+                },
+                children: getPicker()),
           ),
         ],
       ),
@@ -88,11 +87,12 @@ class _PriceScreenState extends State<PriceScreen> {
 //                   return DropdownMenuItem(value: items, child: Text(items));
 //                 }).toList()
 
+// DropdownButton<String>(
+//                 value: selectedCurrency,
+//                 items: getDropdownItoms(),
+//                 onChanged: (value) {
+//                   setState(() {
+//                     selectedCurrency = value!;
+//                   });
+//                 })
 
-// CupertinoPicker(
-//                 backgroundColor: Colors.lightBlue,
-//                 itemExtent: 32.0,
-//                 onSelectedItemChanged: (selectedIndex) {
-//                   print(selectedIndex);
-//                 },
-//                 children: getPicker()),
