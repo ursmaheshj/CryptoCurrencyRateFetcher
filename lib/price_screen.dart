@@ -11,6 +11,10 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  String bitcoin = 'BTC';
+  String selectedCurrency = 'EUR';
+  String rate = ' ?';
+
   DropdownButton<String> getAndroidDropdownButton() {
     List<DropdownMenuItem<String>> dropDownItoms = [];
     for (String currency in currenciesList) {
@@ -24,9 +28,14 @@ class _PriceScreenState extends State<PriceScreen> {
     return DropdownButton<String>(
         value: selectedCurrency,
         items: dropDownItoms,
-        onChanged: (value) {
+        onChanged: (value) async {
+          CoinData c1 = CoinData();
+          var r = await c1.fetchRate();
+
           setState(() {
-            selectedCurrency = value!;
+            bitcoin = r['asset_id_base'];
+            selectedCurrency = r['asset_id_quote'];
+            rate = r['rate'].toString();
           });
         });
   }
@@ -54,8 +63,6 @@ class _PriceScreenState extends State<PriceScreen> {
     }
   }
 
-  String selectedCurrency = 'EUR';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,12 +81,13 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 $bitcoin = $rate $selectedCurrency',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20.0,
                     color: Colors.white,
                   ),
@@ -103,6 +111,5 @@ class _PriceScreenState extends State<PriceScreen> {
 // currenciesList.map((String items) {
 //                   return DropdownMenuItem(value: items, child: Text(items));
 //                 }).toList()
-
 
 
