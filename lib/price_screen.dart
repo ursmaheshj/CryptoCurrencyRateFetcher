@@ -11,9 +11,24 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String bitcoin = 'BTC';
-  String selectedCurrency = 'EUR';
-  String rate = ' ?';
+  String selectedCurrency = 'INR';
+
+  Map<String, String> cryptoPrices = {};
+
+  bool isWaiting = false;
+
+  void getCryptoData() async {
+    isWaiting = true;
+    try {
+      var priceData = await CoinData().fetchRateData(selectedCurrency);
+      isWaiting = false;
+      setState(() {
+        cryptoPrices = priceData;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   DropdownButton<String> getAndroidDropdownButton() {
     List<DropdownMenuItem<String>> dropDownItoms = [];
@@ -29,13 +44,9 @@ class _PriceScreenState extends State<PriceScreen> {
         value: selectedCurrency,
         items: dropDownItoms,
         onChanged: (value) async {
-          CoinData c1 = CoinData();
-          var r = await c1.fetchRate();
-
+          getCryptoData();
           setState(() {
-            bitcoin = r['asset_id_base'];
-            selectedCurrency = r['asset_id_quote'];
-            rate = r['rate'].toString();
+            selectedCurrency = value!;
           });
         });
   }
@@ -63,6 +74,27 @@ class _PriceScreenState extends State<PriceScreen> {
     }
   }
 
+  Column makeCryptoCards() {
+    List<CryptoCard> cryptoCards = [];
+    for (String crypto in cryptoList) {
+      cryptoCards.add(CryptoCard(
+        cryptoCurrency: crypto,
+        rate: isWaiting ? '?' : cryptoPrices[crypto],
+        selectedCurrency: selectedCurrency,
+      ));
+    }
+    return Column(
+      children: cryptoCards,
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCryptoData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,28 +105,7 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 $bitcoin = $rate $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          makeCryptoCards(),
           Container(
             height: 150.0,
             alignment: Alignment.center,
@@ -103,6 +114,44 @@ class _PriceScreenState extends State<PriceScreen> {
             child: Platform.isIOS ? getIOSPicker() : getAndroidDropdownButton(),
           )
         ],
+      ),
+    );
+  }
+}
+
+class CryptoCard extends StatelessWidget {
+  const CryptoCard({
+    Key? key,
+    required this.cryptoCurrency,
+    required this.rate,
+    required this.selectedCurrency,
+  }) : super(key: key);
+
+  final String cryptoCurrency;
+  final String? rate;
+  final String selectedCurrency;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+      child: Card(
+        color: Colors.lightBlueAccent,
+        elevation: 5.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+          child: Text(
+            '1 $cryptoCurrency = $rate $selectedCurrency',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }
